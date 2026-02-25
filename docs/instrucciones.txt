@@ -1,0 +1,83 @@
+Instrucciones para integrar el buscador de cartas en tu website:
+
+1. El archivo JSON con la información de las cartas se encuentra en:
+   https://vikingantonio.github.io/midataYP/cartas.json
+
+2. Puedes usar la función `fetch` de JavaScript para obtener los datos:
+
+```javascript
+fetch('https://vikingantonio.github.io/midataYP/cartas.json')
+  .then(response => response.json())
+  .then(data => {
+    // Aquí tienes la lista de cartas
+    console.log(data);
+    // Puedes guardar 'data' en una variable global para realizar búsquedas
+  });
+```
+
+3. Ejemplo básico de un buscador en HTML/JavaScript:
+
+```html
+<!-- Input para el buscador -->
+<input type="text" id="buscador" placeholder="Busca una carta por nombre...">
+
+<!-- Contenedor donde se mostrarán los resultados -->
+<div id="resultados" style="display: flex; flex-wrap: wrap; gap: 20px; margin-top: 20px;"></div>
+
+<script>
+let todasLasCartas = [];
+
+// 1. Cargar los datos desde el archivo JSON
+fetch('https://vikingantonio.github.io/midataYP/cartas.json')
+  .then(response => response.json())
+  .then(data => {
+    todasLasCartas = data;
+    // Mostrar todas al principio (opcional)
+    mostrarResultados(todasLasCartas);
+  })
+  .catch(error => console.error('Error cargando las cartas:', error));
+
+// 2. Escuchar el evento de escritura en el buscador
+document.getElementById('buscador').addEventListener('input', (e) => {
+  const termino = e.target.value.toLowerCase();
+
+  // Filtrar las cartas cuyo nombre contenga el término buscado
+  const filtradas = todasLasCartas.filter(carta =>
+    carta.nombre.toLowerCase().includes(termino)
+  );
+
+  mostrarResultados(filtradas);
+});
+
+// 3. Función para renderizar los resultados en el HTML
+function mostrarResultados(cartas) {
+  const contenedor = document.getElementById('resultados');
+  contenedor.innerHTML = ''; // Limpiar resultados anteriores
+
+  if (cartas.length === 0) {
+    contenedor.innerHTML = '<p>No se encontraron cartas.</p>';
+    return;
+  }
+
+  cartas.forEach(carta => {
+    const cardDiv = document.createElement('div');
+    cardDiv.style.border = '1px solid #ccc';
+    cardDiv.style.padding = '10px';
+    cardDiv.style.borderRadius = '8px';
+    cardDiv.style.textAlign = 'center';
+    cardDiv.style.width = '200px';
+
+    cardDiv.innerHTML = `
+      <img src="${carta.ruta}" alt="${carta.nombre}" style="max-width: 100%; border-radius: 4px;">
+      <p style="font-weight: bold; margin-top: 10px;">${carta.nombre}</p>
+    `;
+    contenedor.appendChild(cardDiv);
+  });
+}
+</script>
+```
+
+4. Consideraciones:
+   - El archivo JSON utiliza la ruta base: https://vikingantonio.github.io/midataYP/img/
+   - Asegúrate de que la extensión de las imágenes coincida con lo generado en el JSON (en este caso .jpg).
+   - Puedes personalizar el estilo CSS del buscador y de las cartas a tu gusto.
